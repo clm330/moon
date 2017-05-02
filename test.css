@@ -1,0 +1,141 @@
+#canvas_bg{
+	position: relative;
+	z-index: 50;
+	opacity: 0.6;
+	display: flex;
+}
+
+#div_bg{
+	position: relative;
+	z-index: 1;
+}
+
+
+
+
+@keyframes satellite_rotate{
+	to{
+		transform:rotate(3turn);
+	}
+}
+
+@keyframes satellite_click{
+	0% {
+	}
+	25% {
+		transform:scale(1.382,1.382);
+		opacity: 0.382;
+		}
+	50% {
+		transform:scale(1,1);
+		opacity: 1;
+		}
+	75% {
+		transform:scale(0.618,0.618);
+		opacity: 0.382;
+		}
+	100% {
+		transform:scale(1,1);
+		opacity: 1;
+	}
+}
+
+
+
+.satellite
+{
+	opacity: 0.618;
+	animation-name: satellite_rotate;
+	animation-duration: 4s;
+	animation-timing-function: linear;
+	animation-iteration-count: infinite;	
+	position: absolute;
+	z-index: 100;
+}
+
+.satellite:hover
+{
+	opacity: 1;
+	animation-duration: 2s;
+}
+
+.satellite:active
+{
+	animation-name: satellite_click;
+	animation-duration: 0.5s;
+	animation-timing-function: linear;
+	animation-iteration-count: infinite;
+}
+
+
+
+
+/*.fast
+{
+	animation-duration: 2s;
+	animation-timing-function: ease-in-out;
+	animation-iteration-count: 1;
+}*/
+
+#div_button
+{
+	border: 2px solid;
+	border-radius: 25px;
+	left: 50%;
+	top: 50%;
+	cursor: pointer;
+	transform: translate(-50%,-50%);
+	position: absolute;
+	z-index: 50;
+	background-color: blue;
+	opacity: 0.618;
+}
+
+.button_canvas{
+	position: absolute;
+}
+
+
+
+
+
+
+
+/*.satellite.show {
+
+	animation-name: fastrotate;
+	animation-duration: 4s;
+	animation-timing-function: ease-out;
+	animation-iteration-count: 2;
+	animation-direction: alternate-reverse;
+
+}
+
+@keyframes fastrotate{
+	to{
+		transform:rotate(270deg);
+		animation-play-state: paused;
+	}
+}*/
+
+
+
+.ripple {
+  position: absolute;
+  background: rgba(0,0,0,.15);
+  border-radius: 50%;
+  transform: scale(0);
+  pointer-events: none;
+  z-index: 300;
+}
+
+.ripple.show {
+  animation: ripple .75s ease-out;
+}
+
+@keyframes ripple {
+  to {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
