@@ -24,7 +24,7 @@
 					  { name: "网鱼"   } ];
 					 
 		var edges = [  { source : 0  , target: 1 } , { source : 0  , target: 2 } ,
-					   { source : 0  , target: 3 } , { source : 1  , target: 4 }  ];	
+					   { source : 0  , target: 3 } , { source : 1  , target: 4 }];	
 		
 		var width = 600;
 		var height = 600;
@@ -69,7 +69,7 @@
 							.style("fill",function(d,i){
 								return color(i);
 							})
-							.call(force.drag)
+							.call(force.drag)//使得节点能够拖动
 							.on('mouseout',function(d){
 								d3.select(this)
 								.transition()
@@ -84,7 +84,7 @@
 							})
 							.on('click',function(d){
 								console.log(d);
-							});	//使得节点能够拖动
+							});	
 
 		//添加描述节点的文字
 		var svg_texts = svg.selectAll("text")
