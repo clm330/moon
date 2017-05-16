@@ -29,29 +29,29 @@ $(document).ready(function(){
 		speed =0.001;
 
 	var rotation = function(){
-
-	var rotation_div = document.getElementById(DIV_BUTTON_TOP);
-	var bg_canvas = document.getElementById(CANVAS_BG);
-
-	var	centerX = bg_canvas.clientWidth/2;
-	var	centerY = bg_canvas.clientHeight/2;
-
-
-		//console.log(centerX +' '+centerY);
-
-		// console.log(rotation_div.style.top);
-
+		var rotation_div = document.getElementById(DIV_BUTTON_TOP);
+		var bg_canvas = document.getElementById(CANVAS_BG);
+		var	centerX = bg_canvas.clientWidth/2;
+		var	centerY = bg_canvas.clientHeight/2;
 		rotation_div.style.top = centerY + Math.sin(angle)*radius + 'px';
 		rotation_div.style.left = centerX + Math.cos(angle)*radius + 'px';
 		angle += speed;
-
 	};
 
 
 
+	function mou_click(tag,className){
+		var click_tag = document.getElementById(tag);
+		click_tag.classList.add(className);
+		click_tag.addEventListener("oanimationend animationend webkitAnimationEnd",function(e){
+			click_tag.classList.remove(className);
+		},false);
+	}
 
 
+	//mou_click(CANVAS_BG,'flash');
 
+	//document.getElementById(DIV_BUTTON).classList.add('flash');
 
 
 
@@ -73,7 +73,12 @@ $(document).ready(function(){
     	stage.addChild(arc2);
     	stage.update();
 
+    	mou_click(DIV_BUTTON,'flash');
+
     	//window.requestAnimationFrame(rotation);
+    	
+    	//公转
+
     	(function animloop(){
     		rotation();
     		requestAnimationFrame(animloop);
@@ -119,27 +124,4 @@ $(document).ready(function(){
 
 
 	$(`#${DIV_BUTTON}`).css('top',(($(`#${CANVAS_BG}`).width())/2));
-
-	// var addRippleEffect = function (e) {
-	//     var target = e.target;
-	//     if (target.className !== 'satellite') return false;
-	//     var rect = target.getBoundingClientRect();
-	//     //console.log(rect);
-	//     var ripple = target.querySelector('.ripple');
-	//     //console.log(ripple);
-	//     if (!ripple) {
-	//         ripple = document.createElement('span');
-	//         ripple.className = 'ripple';
-	//         ripple.style.height = ripple.style.width = Math.max(rect.width, rect.height) + 'px';
-	//         target.parentNode.appendChild(ripple);
-	//     }
-	//     ripple.classList.remove('show');
-	//     var top = e.pageY - rect.top - ripple.offsetHeight / 2 - document.body.scrollTop;
-	//     var left = e.pageX - rect.left - ripple.offsetWidth / 2 - document.body.scrollLeft;
-	//     ripple.style.top = top + 'px';
-	//     ripple.style.left = left + 'px';
-	//     ripple.classList.add('show');
-	//     return false;
-	// }
-	// document.addEventListener('click', addRippleEffect, false);
 });
