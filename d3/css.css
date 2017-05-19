@@ -1,0 +1,29 @@
+.node {
+	stroke: #fff;
+    stroke-width: 5px;
+}
+
+.node .selected {
+  stroke: black;
+}
+
+.mouseover{
+	stroke: #999;
+}
+
+text {
+  font: 24px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+
+#test{
+	position: relative;
+	z-index: 1;
+}
+
+#menu{
+	position: absolute;
+	z-index: 100;
+}
