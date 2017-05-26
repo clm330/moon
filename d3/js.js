@@ -8,18 +8,19 @@ window.onload = function() {
     var margin = parseInt(d3.select("body").style("margin"));
     var currentlevel = 1;
 
+    const client_width = document.body.clientWidth;
+    const client_height = document.body.clientHeight;
+
 	var node_original = {
 		createNew :function(){
 			var a ={
 			name : null,
 			level: null,
-			parent : null,
 			sub_nodes : [],
 			links : [],
 			bg_url : null,
 			status : {
 				spread : 0,
-				opened : 0
 				}
 			}
 		return a;
@@ -40,6 +41,10 @@ window.onload = function() {
 		return obj;
 	}
 
+	function add_img(obg,img){
+		obg.bg_url = img;
+	}
+
 	var TouchMe = new_node('touch me');
 
 	var Google = new_node('Google');
@@ -55,47 +60,60 @@ window.onload = function() {
 
 	var dota = new_node('dota');
 	dota.links = [links_to(chris,dota)];
+	add_img(dota,'1.jpg');
 	var netbar = new_node('netbar');
 	netbar.links = [links_to(chris,netbar)];
+	add_img(netbar,'2.jpg');
 	var picasl = new_node('picasl');
 	picasl.links = [links_to(chris,picasl)];
+	add_img(picasl,'3.jpg');
+
 	chris.sub_nodes = [dota,netbar,picasl];
 
 
 	var chrome = new_node('chrome');
 	chrome.links = [links_to(Google,chrome)];
+	add_img(chrome,'4.jpg');
 	var android = new_node('android');
 	android.links = [links_to(Google,android)];
+	add_img(android,'5.jpg');
 	var Gmail = new_node('Gmail');
 	Gmail.links = [links_to(Google,Gmail)];
+	add_img(Gmail,'6.jpg');
+
 	Google.sub_nodes = [chrome,android,Gmail];
 
 
 	var PA = new_node('PA');
 	PA.links = [links_to(coco,PA)];
+	add_img(PA,'7.jpg');
+
 	var AM = new_node('AM');
 	AM.links = [links_to(coco,AM)];
+	add_img(AM,'8.jpg');
+
 	var LOA = new_node('LOA');
 	LOA.links = [links_to(coco,LOA)];
+	add_img(LOA,'9.jpg');
+
 	coco.sub_nodes = [PA,AM,LOA];
 
 	var nodes = [TouchMe];
 	var links = [];
 
-    var div = d3.select("div")
-                .append("img")
-                .attr("id","test")
-                .style("background-image","url(1.jpg)")
-                .attr("width",600)
-                .attr("height",600)
-                .style("opacity",0);
+
 
 
 	var svg = d3.select("svg")
-	            .attr("id","menu"),
+	            .attr("id","menu")
+	            .attr("width",client_width)
+	            .attr("height",client_height);
+
 	    width = +svg.attr("width"),
 	    height = +svg.attr("height"),
 	    color = d3.scaleOrdinal(d3.schemeCategory10);
+
+
 
 	function spread_out(d){
 		for(var tmp in d.sub_nodes){
@@ -110,16 +128,33 @@ window.onload = function() {
 	}
 
 	function revoke(d){ //收回
-		for(var tmp in d.sub_nodes){
+		let del_node = [];
+		for(let tmp in d.sub_nodes){
 			if( d.sub_nodes[tmp].sub_nodes.length !== 0 && d.sub_nodes[tmp].status.spread === 1 ){
-				console.log(d.sub_nodes[tmp].sub_nodes);
 				revoke(d.sub_nodes[tmp]);
 			}
-			nodes.pop(d.sub_nodes[tmp]);
+
+			del_node.push(d.sub_nodes[tmp].name);
+
 			for (let i = d.sub_nodes[tmp].links.length - 1; i >= 0; i--) {
-				links.pop(d.sub_nodes[tmp].links[i]);
+				for (let j in links){
+					if (links[j].source.name === d.sub_nodes[tmp].links[i].source.name && links[j].target.name === d.sub_nodes[tmp].links[i].target.name ){
+						links.splice(j,1);
+						continue;
+					}
+				}
 			}					
 		}
+
+		for (let a in del_node) {
+			for (var i = nodes.length - 1; i >= 0; i--) {
+				if(nodes[i].name === del_node[a]){
+					nodes.splice(i,1);
+					continue;
+				}
+			}
+		}
+
 		restart();
 		restart();
 		d.status.spread = 0;
@@ -127,34 +162,49 @@ window.onload = function() {
 
 
 	function open_bg(d){
+	if ( d.bg_url!==null){
 		tmp_nodes = nodes.slice();
 		nodes = [d];
-		console.log(tmp_nodes);
-		console.log(nodes);
 		tmp_links = links.slice();
 		links = [];
-		d3.select("#test")
+
+	    var div = d3.select("div")
+	                .append("img")
+	                .attr("id",d.name)
+	                .attr("width",width)
+	                .attr("height",height)
+	                .style("opacity",0);
+
+		d3.select("#"+d.name)
 		  .transition()
 		  .duration(2000)
+          .style("background-image","url(img/"+ d.bg_url +")")
+          .style("background-size","cover")
 		  .style("opacity",1);
-		simulation.force("x", d3.forceX(width/3))
-		            .force("y", d3.forceY(width/3));
+
+		simulation.force("x", d3.forceX(width/2.2))
+		          .force("y", d3.forceY(height/2.2));
 		restart();
 		restart();
+		bg_opened = 1;
+
+		}
 	}
 
 
 	function close_bg(){
 		nodes = tmp_nodes.slice();
 		links = tmp_links.slice();
-		d3.select("#test")
+		d3.selectAll("img")
 		  .transition()
 		  .duration(2000)
-		  .style("opacity",0);
+		  .style("opacity",0)
+		  .remove();
 		simulation.force("x", d3.forceX(0))
 		            .force("y", d3.forceY(0));
 		restart();
 		restart();
+		bg_opened = 0;
 	}
 
 
@@ -167,7 +217,6 @@ window.onload = function() {
 	    .alphaTarget(1)
 	    .on("tick", ticked);
 
-	    //console.log(d3.forceX());
 
 
 	var g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")"),
@@ -186,9 +235,6 @@ window.onload = function() {
 		node.exit().remove();
 		node = node.enter().append("circle")
 	         .attr("fill", function(d) {
-	         if(d.parent !== null)
-	         	return color(d.parent);
-	         else
 	            return color(d.name);})
 	         .attr("r", node_radius)
 			 .call(d3.drag()
@@ -228,22 +274,22 @@ window.onload = function() {
 				*/
 			})
 			.on('click',function(d){
-				console.log(bg_opened);
 				if(d.sub_nodes.length !== 0 && d.status.spread === 0){
+					// console.log(" name is " + d.name +",index is "+ d.index );
+					// console.log(d);
 					spread_out(d);
 				}
 				else if(d.sub_nodes.length !== 0 && d.status.spread === 1){
+					// console.log("a");
+					// console.log(nodes);
 					revoke(d);
 				}
 				else if( d.sub_nodes.length === 0 && bg_opened === 0){
-					console.log('a');
 					open_bg(d);
-					bg_opened = 1;
 				}
-				else if( bg_opened === 1)
+				else if( d.sub_nodes.length === 0 && bg_opened === 1)
 				{
 					close_bg();
-					bg_opened = 0;
 				}
 			})
 			.merge(node);
