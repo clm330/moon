@@ -6,7 +6,10 @@ window.onload = function() {
 	var tmp_links;
 	var bg_opened = 0;
     var margin = parseInt(d3.select("body").style("margin"));
-    var currentlevel = 1;
+    var current_node;
+    var stroke_r;
+    var R;
+    var selected_node;
 
     const client_width = document.body.clientWidth;
     const client_height = document.body.clientHeight;
@@ -101,9 +104,6 @@ window.onload = function() {
 	var nodes = [TouchMe];
 	var links = [];
 
-
-
-
 	var svg = d3.select("svg")
 	            .attr("id","menu")
 	            .attr("width",client_width)
@@ -112,7 +112,6 @@ window.onload = function() {
 	    width = +svg.attr("width"),
 	    height = +svg.attr("height"),
 	    color = d3.scaleOrdinal(d3.schemeCategory10);
-
 
 
 	function spread_out(d){
@@ -182,8 +181,27 @@ window.onload = function() {
           .style("background-size","cover")
 		  .style("opacity",1);
 
+		var div_text = d3.select("div")
+		                 .append("div")
+		                 .attr("id","div_text")
+		                 .classed("content",true)
+  		                  .style("opacity",0)
+						  .transition()
+						  .duration(2000)
+						  .style("opacity",0.8);
+
+
+		var div_text = d3.select("#div_text")
+  		                  .append("text")
+  		                  .text("hello Cyaninetech")
+						  .style("opacity",0)
+						  .style("color","#ffffff")
+						  .transition()
+						  .duration(2000)
+						  .style("opacity",0.8);
+
 		simulation.force("x", d3.forceX(width/2.2))
-		          .force("y", d3.forceY(height/2.2));
+		          .force("y", d3.forceY(height/2.4));
 		restart();
 		restart();
 		bg_opened = 1;
@@ -200,18 +218,30 @@ window.onload = function() {
 		  .duration(2000)
 		  .style("opacity",0)
 		  .remove();
+
+		d3.selectAll("#div_text")
+		  .transition()
+		  .duration(2000)
+		  .style("opacity",0)
+		  .remove();
+
 		simulation.force("x", d3.forceX(0))
-		            .force("y", d3.forceY(0));
+		          .force("y", d3.forceY(0));
 		restart();
 		restart();
 		bg_opened = 0;
 	}
 
-
-
 	var simulation = d3.forceSimulation(nodes)
-	    .force("charge", d3.forceManyBody().strength(-3000))  //连接强度 排斥力
-	    .force("link", d3.forceLink(links).distance(node_radius/GoldenCut*1.5)) //连接距离
+	    .force("charge", d3.forceManyBody().strength(-2000))  //连接强度 排斥力
+	    .force("link", d3.forceLink(links).distance(function(d){
+	    	if(d.source.name === current_node || d.target.name ===current_node){
+	    		return node_radius/GoldenCut*1.5;	    		
+	    	}
+	    	else{
+	    		return node_radius/GoldenCut;
+	    	}
+	    })) //连接距离
 	    .force("x", d3.forceX())
 	    .force("y", d3.forceY())
 	    .alphaTarget(1)
@@ -222,7 +252,9 @@ window.onload = function() {
 	var g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")"),
 	    link = g.append("g").attr("stroke", "#999").attr("stroke-width", node_radius*GoldenCut/GoldenSeg).selectAll(".link"),
 	    node = g.append("g").attr("stroke", "#fff").attr("stroke-width", node_radius*GoldenCut).selectAll(".node");
+	    //node = g.append("g").classed("normal",true).attr("stroke-width", node_radius*GoldenCut).selectAll(".node");
 	    text = g.append("g").attr("fill", "red").attr("font-size", "20px").selectAll(".text");
+
 
 	restart();
 	restart();
@@ -237,61 +269,104 @@ window.onload = function() {
 	         .attr("fill", function(d) {
 	            return color(d.name);})
 	         .attr("r", node_radius)
-			 .call(d3.drag()
-	         .on("start", dragstarted)
-	         .on("drag", dragged)
-	         .on("end", dragended))
-			 .on('mouseout',function(d){
-				d3.select(this)
-				.transition()
-				.duration(500)
-				.attr("stroke",'white');
-				/* 鼠标悬浮时出现一个气泡 
-				if(comment === 1){
-					d3.select(".comment").remove();
-					comment = 0;
+			 .classed("normal",function(d){
+			 	if(d.name === current_node){
+			 		return false;
+			 	}
+			 	else
+			 		return true;
+			 })
+			 .call(d3
+			 	 .drag().on("start", dragstarted).on("drag", dragged).on("end", dragended))
+				 .on('mouseout',function(d){
+					if(d.name !== current_node){
+						d3.select(this)
+						  .classed("click",false)
+						  .classed("mouseover",false)
+						  .classed("normal",true);
+					}
+					else{
+						d3.select(this)
+						  .classed("mouseover",false)
+						  .classed("normal",false)					
+						  .classed("click",true)
+					}
+				})
+				.on('mouseover',function(d){
+					if(d.name !== current_node){
+						d3.select(this)
+						  .classed("click",false)
+						  .classed("normal",false)
+						  .classed("mouseover",true);
+					}
+					else
+					{
+						d3.select(this)
+						  .classed("click",false)
+						  .classed("normal",false)
+						  .classed("mouseover",false)
+						  .style("stroke-opacity",0);
+					}
+				})
+				.on('click',function(d){
+					current_node = d.name;
+					d3.select(".click")
+					  .classed("mouseover",false)				
+					  .classed("click",false)
+					  .classed("normal",true);
+					d3.select(this)
+					  .classed("mouseover",false)
+					  .classed("normal",false)
+					  .classed("click",true);
+
+                    if(d3.select("#svg_stroke").data().length !==0)
+                    	d3.select("#svg_stroke").remove();
+                    //else
+
+                    let r = node_radius;
+                    R = node_radius*(1+GoldenCut);
+                    stroke_r = R/2+r/2;
+                    let stroke_width = (R-r);
+
+					var stroke = d3.select("g")
+					                .append("svg")
+					                .attr("id","svg_stroke")
+					                .attr("x",d.x-R)
+					                .attr("y",d.y-R)
+					                .append("g")
+					                .classed("stroke",true)
+					                .attr("fill","none")
+					                .attr("stroke-width",stroke_width)
+
+					stroke.append("path")
+					      .attr("d","M " + (R-stroke_r) + "," + R +"A"+ stroke_r +","+ stroke_r +" 0 0 1 " + (R+stroke_r) + ","+ R)
+					      .attr("stroke","#44c4fa");
+
+					stroke.append("path")
+					      .attr("d","M "+ (R-stroke_r) +"," + R +" A "+ stroke_r +","+ stroke_r + " 0 0 0 "+ R + "," +  (R+stroke_r) )
+					      .attr("stroke","url(#gradient)");
+
+                    selected_stroke = d3.select("#svg_stroke");
+					selected_node = d3.select(".click").data()[0];
+
+
+
+
+					if(d.sub_nodes.length !== 0 && d.status.spread === 0){
+						spread_out(d);
+					}
+					else if(d.sub_nodes.length !== 0 && d.status.spread === 1){
+						revoke(d);
+					}
+					else if( d.sub_nodes.length === 0 && bg_opened === 0){
+						open_bg(d);
+					}
+					else if( d.sub_nodes.length === 0 && bg_opened === 1)
+					{
+						close_bg();
+					}
 				}
-				*/
-			})
-			.on('mouseover',function(d){
-				d3.select(this)
-				.transition()
-				.duration(500)
-				.attr("stroke","#999");
-				/* 鼠标悬浮时出现一个气泡 
-					if(comment === 0){
-					var img = d3.select("svg").append("svg")
-					            .attr("class","comment")
-					            .attr("width","50px")
-					            .attr("x",d3.event.clientX-25+6)
-					            .attr("y",d3.event.clientY-height/2-25-margin)
-					            .append("use")
-					            .attr("xlink:href","#si-evil-comment")
-					            .append("text")
-					            .text("hello");
-					comment = 1;
-				}
-				*/
-			})
-			.on('click',function(d){
-				if(d.sub_nodes.length !== 0 && d.status.spread === 0){
-					// console.log(" name is " + d.name +",index is "+ d.index );
-					// console.log(d);
-					spread_out(d);
-				}
-				else if(d.sub_nodes.length !== 0 && d.status.spread === 1){
-					// console.log("a");
-					// console.log(nodes);
-					revoke(d);
-				}
-				else if( d.sub_nodes.length === 0 && bg_opened === 0){
-					open_bg(d);
-				}
-				else if( d.sub_nodes.length === 0 && bg_opened === 1)
-				{
-					close_bg();
-				}
-			})
+			)
 			.merge(node);
 
 
@@ -335,6 +410,11 @@ window.onload = function() {
 	      .attr("y1", function(d) { return d.source.y; })
 	      .attr("x2", function(d) { return d.target.x; })
 	      .attr("y2", function(d) { return d.target.y; });
+
+	  if(selected_node!==undefined){
+	  	  selected_stroke.attr("x",selected_node.x-R);
+	  	  selected_stroke.attr("y",selected_node.y-R);
+		} 
 	}
 
     function dragstarted(d) {
@@ -346,6 +426,8 @@ window.onload = function() {
     function dragged(d) {
         d.fx = d3.event.x;
         d.fy = d3.event.y;
+	  	selected_stroke.attr("x",selected_node.x-R);
+	  	selected_stroke.attr("y",selected_node.y-R);        
     }
     
     function dragended(d) {

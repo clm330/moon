@@ -17,7 +17,6 @@ text {
   pointer-events: none;
 }
 
-
 #test{
 	position: relative;
 	z-index: 1;
@@ -26,4 +25,44 @@ text {
 #menu{
 	position: absolute;
 	z-index: 100;
+}
+
+.content{
+	position: absolute;
+    background :#999999;
+    width: 600px;
+    height: 600px;
+    left: 200px;
+    top: 200px;
+}
+
+.stroke {
+  animation: loading linear 2s infinite;
+  transform-origin: 55.28px 55.28px;
+}
+
+@keyframes loading {
+  from {
+    transform:  rotate(0deg);
+  }
+  to {
+    transform:  rotate(360deg);
+  }
+}
+
+.normal{
+	stroke: #ffffff;
+	transition: stroke 500ms;
+}
+
+.click{
+	stroke: #ffffff;
+	stroke-opacity:0;
+	/*stroke: url("#SVGID_1_");*/
+	transition: stroke 500ms;	
+}
+
+.mouseover{
+	stroke: #999999;
+	transition: stroke 500ms;	
 }
